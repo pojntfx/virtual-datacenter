@@ -1,0 +1,40 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/alpine39"
+
+  config.vm.network "forwarded_port", guest: 1020, host: 21020, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 1040, host: 21040, host_ip: "127.0.0.1"
+
+  config.vm.network "private_network", ip: "192.168.33.10"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+  
+    vb.memory = "1024"
+  end
+
+  config.vm.provision "file", source: "./config/dhcpdd", destination: "/tmp/dhcpdd"
+  config.vm.provision "file", source: "./config/tftpdd", destination: "/tmp/tftpdd"
+
+  config.vm.provision "shell" do |shell|
+    shell.inline = <<-SHELL
+    apk add -u curl
+
+    cp /tmp/dhcpdd /etc/init.d/dhcpdd
+    cp /tmp/tftpdd /etc/init.d/tftpdd
+
+    curl -Lo /usr/sbin/dhcpdd https://github.com/pojntfx/go-isc-dhcp/releases/latest/download/dhcpdd-linux-amd64
+    curl -Lo /usr/sbin/tftpdd https://github.com/pojntfx/tftpdd/releases/latest/download/tftpdd-linux-amd64
+    
+    chmod +x /usr/sbin/dhcpdd /etc/init.d/dhcpdd
+    chmod +x /usr/sbin/tftpdd /etc/init.d/tftpdd
+
+    rc-update add dhcpdd
+    rc-update add tftpdd
+
+    rc-service dhcpdd start
+    rc-service tftpdd start
+    SHELL
+
+    shell.privileged = true
+  end
+end
