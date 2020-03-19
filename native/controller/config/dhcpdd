@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+
+command="/usr/sbin/dhcpdd"
+command_args="-l :1020"
+command_background="yes"
+pidfile="/run/$RC_SVCNAME.pid"
+
+depend() {
+    need net
+}
