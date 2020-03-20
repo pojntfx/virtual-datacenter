@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+
+command="/usr/sbin/k3sd"
+command_args="-l :1070"
+command_background="yes"
+pidfile="/run/$RC_SVCNAME.pid"
+
+depend() {
+    need net
+}
