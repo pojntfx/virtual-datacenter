@@ -27,6 +27,13 @@ This is a virtual Cluster Platform datacenter built on Vagrant.
 % tftpdctl -s tftpdd.virtual-datacenter.local:20080 apply -f config/tftpd.yaml
 ```
 
+#### Setup Node
+
+```bash
+% cd kubernetes/node
+% vagrant up
+```
+
 ### Native
 
 #### Setup Controller
