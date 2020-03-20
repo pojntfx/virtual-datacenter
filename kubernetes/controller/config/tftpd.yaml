@@ -1,0 +1,4 @@
+tftpd:
+  device: eth1
+  port: 69
+  biosFilenameURL: https://nx904.your-storageshare.de/s/TBWqyZRE7mReDwb/download
