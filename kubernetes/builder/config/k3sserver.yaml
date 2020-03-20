@@ -1,0 +1,3 @@
+k3sserver:
+  networkDevice: eth1
+  tlsSan: 192.168.24.11

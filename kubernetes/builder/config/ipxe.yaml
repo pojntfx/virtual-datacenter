@@ -1,0 +1,7 @@
+ipxe:
+  platform: bin
+  driver: undionly
+  extension: kpxe
+  script: |
+    #!ipxe
+    autoboot

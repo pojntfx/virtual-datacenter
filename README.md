@@ -10,6 +10,22 @@ This is a virtual Cluster Platform datacenter built on Vagrant.
 
 ### Kubernetes
 
+#### Setup Builder
+
+```bash
+% cd kubernetes/builder
+% vagrant up
+% k3sserverctl -s :31070 start -f config/k3sserver.yaml
+% k3sserverctl -s :31070 get kubeconfig | sed -e "s/6443/36443/g" > ~/.kube/builder-config.yaml
+% export KUBECONFIG="${HOME}/.kube/builder-config.yaml"
+% kubectl get pod -A
+% helm repo add pojntfx https://pojntfx.github.io/charts/
+% helm install ipxebuilderd pojntfx/ipxebuilderd --set ingress.domain=ipxebuilderd.virtual-datacenter.local --set 'minio.ingress.hosts[0].name=minio.ipxebuilderd.virtual-datacenter.local'
+% echo "127.0.0.1 ipxebuilderd.virtual-datacenter.local" | sudo tee -a /etc/hosts
+% ipxectl -s ipxebuilderd.virtual-datacenter.local:30080 apply -f config/ipxe.yaml
+% ipxectl -s ipxebuilderd.virtual-datacenter.local:30080 get $ID # Take note of the URL
+```
+
 #### Setup Controller
 
 ```bash
@@ -24,7 +40,7 @@ This is a virtual Cluster Platform datacenter built on Vagrant.
 % helm install tftpdd pojntfx/tftpdd --set ingress.domain=tftpdd.virtual-datacenter.local
 % echo "127.0.0.1 dhcpdd.virtual-datacenter.local tftpdd.virtual-datacenter.local" | sudo tee -a /etc/hosts
 % dhcpdctl -s dhcpdd.virtual-datacenter.local:20080 apply -f config/dhcpd.yaml
-% tftpdctl -s tftpdd.virtual-datacenter.local:20080 apply -f config/tftpd.yaml
+% tftpdctl -s tftpdd.virtual-datacenter.local:20080 apply -f config/tftpd.yaml --tftpd.biosFilenameURL $URL # URL from above
 ```
 
 #### Setup Node
