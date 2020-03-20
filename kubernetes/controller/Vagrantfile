@@ -1,0 +1,39 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/alpine39"
+
+  config.vm.network "forwarded_port", guest: 1070, host: 21070, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 6443, host: 26443, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 80, host: 20080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 443, host: 20443, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8080, host: 28080, host_ip: "127.0.0.1"
+
+  config.vm.network "private_network", ip: "192.168.24.10", virtualbox__intnet: "pxe_network"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+  
+    vb.memory = "1024"
+  end
+
+  config.vm.provision "file", source: "./config/k3sd", destination: "/tmp/k3sd"
+
+  config.vm.provision "shell" do |shell|
+    shell.inline = <<-SHELL
+    apk add -u curl
+
+    mv /tmp/k3sd /etc/init.d/k3sd
+
+    curl -Lo /usr/sbin/k3sd https://github.com/pojntfx/k3sd/releases/latest/download/k3sd-linux-amd64
+    
+    chmod +x /usr/sbin/k3sd /etc/init.d/k3sd
+
+    rc-update add k3sd
+    rc-update add cgroups
+
+    rc-service cgroups start
+    rc-service k3sd start
+    SHELL
+
+    shell.privileged = true
+  end
+end
